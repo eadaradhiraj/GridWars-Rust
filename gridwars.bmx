@@ -3531,6 +3531,7 @@ Type score
 		fn$ = hdir+"/.config/gridwars/hiscores.dat"
 
 		Local fh:TStream = OpenFile(fn)
+		If fh = Null Then fh = OpenFile("hiscores.dat")
 		If fh = Null
 			' if score file not found use the default
 			score.SetDefault()
@@ -3946,8 +3947,12 @@ Function ShowFriends:Int(f:Int=-1)
 
 		SetColor 255,255,0
 		If counter Mod 50 > 25
-			DrawString("Press BOMB Button to Start",SCREENW/2-250,SCREENH-32,4)
+			Local startText$ = "Press SPACE or BOMB to Start"
+			DrawString(startText$,(SCREENW-Len(startText$)*5*3.5)/2,SCREENH-52,3.5)
 		EndIf
+		SetColor 0,220,255
+		Local optText$ = "ESC: Menu / Options"
+		DrawString(optText$,(SCREENW-Len(optText$)*5*2.8)/2,SCREENH-22,2.8)
 
 '		DrawLine 0,0,SCREENW,0
 '		DrawLine 0,0,0,SCREENH
@@ -3968,7 +3973,7 @@ Function ShowFriends:Int(f:Int=-1)
 
 			If Options(False) Then Return True
 		EndIf
-		If KeyHit(k_bomb) Or MouseHit(m_bomb) Or ..
+		If KeyHit(k_bomb) Or KeyHit(KEY_ENTER) Or MouseHit(m_bomb) Or ..
 			(JoyDown(j_pad_bomb,joyport) And controltype = 3 And bombtime = 0) Or ..
 			(JoyDown(j_d_bomb,joyport) And controltype = 0 And bombtime = 0)
 			counter = 1000
@@ -4101,8 +4106,12 @@ Function ShowEnemies:Int(f:Int=-1)
 		part.DrawParticles()
 		SetColor 255,255,0
 		If counter Mod 50 > 25
-			DrawString("Press BOMB Button to Start",SCREENW/2-250,SCREENH-32,4)
+			Local startText$ = "Press SPACE or BOMB to Start"
+			DrawString(startText$,(SCREENW-Len(startText$)*5*3.5)/2,SCREENH-52,3.5)
 		EndIf
+		SetColor 0,220,255
+		Local optText$ = "ESC: Menu / Options"
+		DrawString(optText$,(SCREENW-Len(optText$)*5*2.8)/2,SCREENH-22,2.8)
 		Flip 1
 		tim = MilliSecs() - tim
 		If tim < 20 And tim > 0
@@ -4116,7 +4125,7 @@ Function ShowEnemies:Int(f:Int=-1)
 			(JoyDown(j_d_option,joyport) And controltype = 0 And bombtime = 0)
 			If Options(False) Then Return True
 		EndIf
-		If KeyHit(k_bomb) Or MouseHit(m_bomb) Or ..
+		If KeyHit(k_bomb) Or KeyHit(KEY_ENTER) Or MouseHit(m_bomb) Or ..
 			(JoyDown(j_pad_bomb,joyport) And controltype = 3 And bombtime = 0) Or ..
 			(JoyDown(j_d_bomb,joyport) And controltype = 0 And bombtime = 0)
 			counter = 1000
@@ -4205,8 +4214,12 @@ Function ShowScores:Int(f:Int=-1)
 		part.DrawParticles()
 		SetColor 255,255,0
 		If counter Mod 50 > 25
-			DrawString("Press BOMB Button to Start",SCREENW/2-250,SCREENH-32,4)
+			Local startText$ = "Press SPACE or BOMB to Start"
+			DrawString(startText$,(SCREENW-Len(startText$)*5*3.5)/2,SCREENH-52,3.5)
 		EndIf
+		SetColor 0,220,255
+		Local optText$ = "ESC: Menu / Options"
+		DrawString(optText$,(SCREENW-Len(optText$)*5*2.8)/2,SCREENH-22,2.8)
 		Flip 1
 		tim = MilliSecs() - tim
 		If tim < 20 And tim > 0
@@ -4221,7 +4234,7 @@ Function ShowScores:Int(f:Int=-1)
 			If Options(False) Then Return True
 			bombtime = 20
 		EndIf
-		If KeyHit(k_bomb) Or MouseHit(m_bomb) Or ..
+		If KeyHit(k_bomb) Or KeyHit(KEY_ENTER) Or MouseHit(m_bomb) Or ..
 			(JoyDown(j_pad_bomb,joyport) And controltype = 3 And bombtime = 0) Or ..
 			(JoyDown(j_d_bomb,joyport) And controltype = 0 And bombtime = 0)
 			counter = 1000
@@ -4297,8 +4310,12 @@ Function ShowTitle:Int()
 
 		SetColor 255,255,0
 		If counter Mod 60 > 29
-			DrawString("Press BOMB Button to Start",SCREENW/2-26/2*5*4*shrink,SCREENH-32,4*shrink)
+			Local startText$ = "Press SPACE or BOMB to Start"
+			DrawString(startText$,(SCREENW-Len(startText$)*5*3.5*shrink)/2,SCREENH-52*shrink,3.5*shrink)
 		EndIf
+		SetColor 0,220,255
+		Local optText$ = "ESC: Menu / Options"
+		DrawString(optText$,(SCREENW-Len(optText$)*5*2.8*shrink)/2,SCREENH-22*shrink,2.8*shrink)
 		Flip 1
 		tim = MilliSecs() - tim
 		If tim < 20 And tim > 0
@@ -4314,7 +4331,7 @@ Function ShowTitle:Int()
 			(JoyDown(j_d_option,joyport) And controltype = 0 And bombtime = 0)
 			If Options(False) Then Return True
 		EndIf
-		If KeyHit(k_bomb) Or MouseHit(m_bomb) Or ..
+		If KeyHit(k_bomb) Or KeyHit(KEY_ENTER) Or MouseHit(m_bomb) Or ..
 			(JoyDown(j_pad_bomb,joyport) And controltype = 3 And bombtime = 0) Or ..
 			(JoyDown(j_d_bomb,joyport) And controltype = 0 And bombtime = 0)
 			counter = 1000

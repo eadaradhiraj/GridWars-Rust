@@ -223,6 +223,7 @@ Function LoadConfig:Int()
 	hdir$=GetUserHomeDir()
 	fn$ = hdir+"/.config/gridwars/Config.txt"
 	fh = OpenFile(fn$)
+	If fh = Null Then fh = OpenFile("Config.txt")
 	If fh <> Null
 		While Not Eof(fh)
 			' read each line
@@ -741,6 +742,7 @@ Function LoadColours:Int()
 	hdir$=GetUserHomeDir()
 	fn$ = hdir+"/.config/gridwars/Colours.txt"
 	fh = OpenFile(fn$)
+	If fh = Null Then fh = OpenFile("Colours.txt")
 	If fh <> Null
 		com$ = ReadLine(fh)
 		COL_SQUARE_R = Int(ReadLine(fh))

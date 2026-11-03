@@ -280,7 +280,7 @@ Function SetUp:Int()
 		gxoff = 0
 		gyoff = 0
 
-		capturedimg:TImage = CreateImage(SCREENW,SCREENH)
+		capturedimg = CreateImage(SCREENW,SCREENH)
 		SetLineWidth 2
 ?not opengles
 		glEnable GL_LINE_SMOOTH; glHint GL_LINE_SMOOTH, GL_NICEST
