@@ -15,6 +15,7 @@ pub enum EnemyKind {
     ShieldedTriangle,// Kind 8 (orange / shield)
     Butterfly,       // Kind 9 (blue weaver)
     SplitterCube,    // Kind 6 (purple)
+    Quark,           // Kind 3 (pulsing cube)
     Generator,       // Kind 10 (spawner)
 }
 
@@ -131,6 +132,7 @@ impl EnemyManager {
             EnemyKind::ShieldedTriangle => (1, 150, 14.0, 0.03),
             EnemyKind::Butterfly => (1, 100, 12.0, 0.05),
             EnemyKind::SplitterCube => (1, 50, 16.0, 0.03),
+            EnemyKind::Quark => (1, 100, 15.0, 0.06),
             EnemyKind::Generator => (8, 200, 22.0, 0.02),
         };
 
@@ -362,6 +364,22 @@ impl EnemyManager {
                         e.dy = -e.dy;
                     }
                 }
+                EnemyKind::Quark => {
+                    let to_px = px - e.x;
+                    let to_py = py - e.y;
+                    let dist = (to_px * to_px + to_py * to_py).sqrt();
+                    if dist > 1.0 {
+                        e.dx += (to_px / dist) * 0.12 * speed_mult;
+                        e.dy += (to_py / dist) * 0.12 * speed_mult;
+                    }
+                    let sp = (e.dx * e.dx + e.dy * e.dy).sqrt();
+                    if sp > 2.5 * speed_mult {
+                        e.dx = (e.dx / sp) * 2.5 * speed_mult;
+                        e.dy = (e.dy / sp) * 2.5 * speed_mult;
+                    }
+                    e.x += e.dx;
+                    e.y += e.dy;
+                }
                 EnemyKind::Generator => {
                     e.spawn_timer += 1;
                     if e.spawn_timer >= e.spawn_rate {
@@ -398,7 +416,7 @@ impl EnemyManager {
                             // Hit the front shield - deflected!
                             s.alive = false;
                             particles.burst(s.x, s.y, 6, COL_TRIANGLE, 4.0, 15.0);
-                            audio._play_shield();
+                            audio.play_shield();
                             continue;
                         }
                     }
@@ -409,9 +427,11 @@ impl EnemyManager {
 
                     e.hp -= 1;
                     if e.kind == EnemyKind::BlackHole {
-                        audio._play_sun_hit();
+                        audio.play_sun_hit();
+                    } else if e.kind == EnemyKind::Quark {
+                        audio.play_quark_hit();
                     } else {
-                        audio._play_pop();
+                        audio.play_pop();
                     }
                     particles.burst(s.x, s.y, 5, COL_PLAYER, 3.0, 12.0);
 
@@ -431,6 +451,7 @@ impl EnemyManager {
                             EnemyKind::ShieldedTriangle => COL_TRIANGLE,
                             EnemyKind::Butterfly => COL_BUTTER,
                             EnemyKind::SplitterCube => COL_CUBE,
+                            EnemyKind::Quark => COL_CUBE,
                             EnemyKind::Generator => COL_POWERUP,
                         };
                         particles.burst(e.x, e.y, 25, color, 6.0, 30.0);
@@ -441,6 +462,13 @@ impl EnemyManager {
                             let _next_stage = e.cube_stage + 1;
                             new_spawns.push((EnemyKind::SplitterCube, e.x - 8.0, e.y - 8.0, 0));
                             new_spawns.push((EnemyKind::SplitterCube, e.x + 8.0, e.y + 8.0, 0));
+                        }
+
+                        // Quark splitting logic
+                        if e.kind == EnemyKind::Quark && e.cube_stage == 0 {
+                            let q1 = EnemyKind::Quark;
+                            new_spawns.push((q1, e.x - 12.0, e.y - 12.0, 0));
+                            new_spawns.push((q1, e.x + 12.0, e.y + 12.0, 0));
                         }
 
                         // Chance to drop powerup
@@ -674,6 +702,11 @@ impl EnemyManager {
                 }
                 EnemyKind::SplitterCube => {
                     let r = e.radius * (1.0 - (e.cube_stage as f32) * 0.25);
+                    draw_rectangle_lines(e.x - r * 0.5, e.y - r * 0.5, r, r, 2.0, COL_CUBE);
+                }
+                EnemyKind::Quark => {
+                    let pulse = (e.timer * 6.0).sin().abs() * 6.0;
+                    let r = e.radius + pulse;
                     draw_rectangle_lines(e.x - r * 0.5, e.y - r * 0.5, r, r, 2.0, COL_CUBE);
                 }
                 EnemyKind::Generator => {

@@ -46,7 +46,7 @@ async fn main() {
     let playfield_h = 768.0f32;
 
     // Load authentic sound effects & textures
-    let audio = AudioManager::load().await;
+    let mut audio = AudioManager::load().await;
     let enemy_textures = EnemyTextures::load().await;
     let player_tex = load_texture("gfx/high/whiteplayer.png").await.ok();
     let shot_tex = load_texture("gfx/high/yellowshot.png").await.ok();
@@ -70,6 +70,7 @@ async fn main() {
 
         match state {
             GameState::Attract => {
+                audio.play_music(0);
                 // Background ambient grid motion & starfield
                 grid.update();
                 particles.update(playfield_w, playfield_h);
@@ -115,6 +116,7 @@ async fn main() {
             }
 
             GameState::Playing => {
+                audio.play_music(1);
                 elapsed_play_time += get_frame_time();
 
                 if menu.options_open {
@@ -151,14 +153,15 @@ async fn main() {
 
                         // Continuous single enemy spawns
                         if wave_timer % 32 == 0 {
-                            let kind = match (wave_timer / 300) % 8 {
+                            let kind = match (wave_timer / 300) % 9 {
                                 0 => EnemyKind::Pinwheel,
                                 1 => EnemyKind::SeekerDiamond,
                                 2 => EnemyKind::WandererSquare,
-                                3 => EnemyKind::Butterfly,
-                                4 => EnemyKind::SplitterCube,
-                                5 => EnemyKind::ShieldedTriangle,
-                                6 => EnemyKind::Clone,
+                                3 => EnemyKind::Quark,
+                                4 => EnemyKind::Butterfly,
+                                5 => EnemyKind::SplitterCube,
+                                6 => EnemyKind::ShieldedTriangle,
+                                7 => EnemyKind::Clone,
                                 _ => EnemyKind::Pinwheel,
                             };
                             let corner = rand::gen_range(0, 4);
@@ -370,6 +373,7 @@ async fn main() {
             }
 
             GameState::GameOver => {
+                audio.play_music(2);
                 grid.update();
                 particles.update(playfield_w, playfield_h);
 
