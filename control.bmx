@@ -121,7 +121,7 @@ control_method[4] = "Hybrid"
 
 
 'defaults
-Global controltype:Int = 0
+Global controltype:Int = 2
 Global deadbandadjust:Int  = 0
 
 Global joyport:Int = 0

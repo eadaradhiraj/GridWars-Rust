@@ -1,7 +1,7 @@
 [Windowed]
 True
 [Control Type]
-Dual Analog
+Keyboard
 [Hybrid Config]
 0
 [Joypad Config]

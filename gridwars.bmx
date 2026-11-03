@@ -4437,7 +4437,9 @@ Function GetReady:Int()
 		EndIf
 	Wend
 	player_shield = 80
-	messtime = 0
+	mess$ = "Move: ARROWS or WASD  |  Shoot: SPACE or ARROWS  |  Bomb: B"
+	mlen = Len(mess$)
+	messtime = 200
 	StartMusic(1)
 	Score.ResetMultiplier()
 	oldmx = 0
@@ -5074,6 +5076,36 @@ Function Updateplayer()
 				jdfx = 0
 				jdfy = 0
 			End If
+
+			' Fallback to keyboard if no analog stick input:
+			If jdmx = 0 And jdmy = 0 And jdfx = 0 And jdfy = 0
+				Local kb_bomb:Int = KeyDown(KEY_B) Or KeyDown(KEY_LSHIFT) Or KeyDown(KEY_RSHIFT)
+				If kb_bomb And bombtime = 0 Then shot.SuperBomb()
+
+				Local wx:Float = (KeyDown(k_move_right) Or KeyDown(KEY_D)) - (KeyDown(k_move_left) Or KeyDown(KEY_A))
+				Local wy:Float = (KeyDown(k_move_down) Or KeyDown(KEY_S)) - (KeyDown(k_move_up) Or KeyDown(KEY_W))
+				Local ax:Float = KeyDown(KEY_RIGHT) - KeyDown(KEY_LEFT)
+				Local ay:Float = KeyDown(KEY_DOWN) - KeyDown(KEY_UP)
+
+				If wx <> 0 Or wy <> 0
+					jdmx = wx
+					jdmy = wy
+					jdfx = ax
+					jdfy = ay
+					If KeyDown(KEY_SPACE) And jdfx = 0 And jdfy = 0
+						jdfx = Cos(pr+90)
+						jdfy = Sin(pr+90)
+					EndIf
+				Else
+					jdmx = ax
+					jdmy = ay
+					If KeyDown(KEY_SPACE)
+						jdfx = Cos(pr+90)
+						jdfy = Sin(pr+90)
+					EndIf
+				EndIf
+			EndIf
+
 			oldmx:*inertia
 			oldmy:*inertia
 			jdmx:+oldmx
@@ -5088,38 +5120,68 @@ Function Updateplayer()
 			oldmy = jdmy
 
 		Case 2 'keys
-			'bombs
-			jb = KeyDown(k_bomb)
+			'bombs: B, Shift, or custom bomb key
+			jb = KeyDown(KEY_B) Or KeyDown(KEY_LSHIFT) Or KeyDown(KEY_RSHIFT)
+			If k_bomb <> KEY_SPACE And KeyDown(k_bomb) Then jb = 1
 			bombtime = bombtime - 1
 			If bombtime < 0 Then bombtime = 0
 			If jb And bombtime = 0 Then shot.SuperBomb()
 
-			'move
-			jdmx = KeyDown(k_move_right) - KeyDown(k_move_left)
-			jdmy = KeyDown(k_move_down) - KeyDown(k_move_up)
+			'move: check WASD and Arrow keys
+			Local wasd_x:Float = (KeyDown(k_move_right) Or KeyDown(KEY_D)) - (KeyDown(k_move_left) Or KeyDown(KEY_A))
+			Local wasd_y:Float = (KeyDown(k_move_down) Or KeyDown(KEY_S)) - (KeyDown(k_move_up) Or KeyDown(KEY_W))
+			Local arrow_x:Float = KeyDown(KEY_RIGHT) - KeyDown(KEY_LEFT)
+			Local arrow_y:Float = KeyDown(KEY_DOWN) - KeyDown(KEY_UP)
 
-			'fire
-			If autofire
-				If KeyDown(k_fire_right)
-					jdfx = 1
-					jdfy = KeyDown(k_fire_down) - KeyDown(k_fire_up)
+			If wasd_x <> 0 Or wasd_y <> 0
+				' WASD pressed -> WASD moves
+				jdmx = wasd_x
+				jdmy = wasd_y
+
+				' Arrow keys aim & fire:
+				If autofire
+					If KeyDown(k_fire_right) Or KeyDown(KEY_RIGHT)
+						jdfx = 1
+						jdfy = arrow_y
+					EndIf
+					If KeyDown(k_fire_left) Or KeyDown(KEY_LEFT)
+						jdfx = -1
+						jdfy = arrow_y
+					EndIf
+					If KeyDown(k_fire_down) Or KeyDown(KEY_DOWN)
+						jdfy = 1
+						jdfx = arrow_x
+					EndIf
+					If KeyDown(k_fire_up) Or KeyDown(KEY_UP)
+						jdfy = -1
+						jdfx = arrow_x
+					EndIf
+				Else
+					jdfx = arrow_x
+					jdfy = arrow_y
 				EndIf
-				If KeyDown(k_fire_left)
-					jdfx = -1
-					jdfy = KeyDown(k_fire_down) - KeyDown(k_fire_up)
-				EndIf
-				If KeyDown(k_fire_down)
-					jdfy = 1
-					jdfx = KeyDown(k_fire_right) - KeyDown(k_fire_left)
-				EndIf
-				If KeyDown(k_fire_up)
-					jdfy = -1
-					jdfx = KeyDown(k_fire_right) - KeyDown(k_fire_left)
+
+				' Space fires in facing direction:
+				If KeyDown(KEY_SPACE) And jdfx = 0 And jdfy = 0
+					jdfx = Cos(pr+90)
+					jdfy = Sin(pr+90)
 				EndIf
 			Else
-				jdfx = KeyDown(k_fire_right) - KeyDown(k_fire_left)
-				jdfy = KeyDown(k_fire_down) - KeyDown(k_fire_up)
+				' WASD not pressed -> Arrow keys move!
+				jdmx = arrow_x
+				jdmy = arrow_y
+
+				' Space fires in facing direction:
+				If KeyDown(KEY_SPACE)
+					jdfx = Cos(pr+90)
+					jdfy = Sin(pr+90)
+				Else
+					' If neither WASD nor Space, check if arrow keys alone should fire (if autofire without Space):
+					jdfx = 0
+					jdfy = 0
+				EndIf
 			EndIf
+
 			oldmx:*inertia
 			oldmy:*inertia
 			jdmx:+oldmx
