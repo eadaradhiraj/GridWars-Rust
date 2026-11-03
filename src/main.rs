@@ -66,6 +66,10 @@ async fn main() {
     let mut elapsed_play_time = 0.0f32;
 
     loop {
+        if is_key_pressed(KeyCode::Q) {
+            std::process::exit(0);
+        }
+
         clear_background(BLACK);
 
         match state {

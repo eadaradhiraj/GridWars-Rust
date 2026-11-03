@@ -187,12 +187,12 @@ impl MenuState {
             if self.selected_option > 0 {
                 self.selected_option -= 1;
             } else {
-                self.selected_option = 3;
+                self.selected_option = 4;
             }
         }
 
         if is_key_pressed(KeyCode::Down) || is_key_pressed(KeyCode::S) {
-            if self.selected_option < 3 {
+            if self.selected_option < 4 {
                 self.selected_option += 1;
             } else {
                 self.selected_option = 0;
@@ -220,6 +220,10 @@ impl MenuState {
                     // Back to Title
                     self.options_open = false;
                     return true;
+                }
+                4 => {
+                    // Quit game
+                    std::process::exit(0);
                 }
                 _ => {}
             }
@@ -251,6 +255,7 @@ impl MenuState {
             format!("SOUND EFFECTS  : {}", sfx_str),
             "RESUME GAME".to_string(),
             "RETURN TO TITLE".to_string(),
+            "QUIT GAME".to_string(),
         ];
 
         for (i, opt) in options.iter().enumerate() {
