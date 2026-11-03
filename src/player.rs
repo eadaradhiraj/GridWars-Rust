@@ -158,9 +158,15 @@ impl Player {
                 aim_y = arrow_y;
                 want_to_fire = true;
             } else if is_key_down(KeyCode::Space) {
-                // Space shoots in facing direction
-                aim_x = self.rot.cos();
-                aim_y = self.rot.sin();
+                // Space shoots in movement or facing direction
+                let w_len = (wasd_x * wasd_x + wasd_y * wasd_y).sqrt();
+                if w_len > 0.001 {
+                    aim_x = wasd_x / w_len;
+                    aim_y = wasd_y / w_len;
+                } else {
+                    aim_x = self.rot.cos();
+                    aim_y = self.rot.sin();
+                }
                 want_to_fire = true;
             }
         } else {
@@ -169,8 +175,14 @@ impl Player {
             move_y = arrow_y;
 
             if is_key_down(KeyCode::Space) {
-                aim_x = self.rot.cos();
-                aim_y = self.rot.sin();
+                let a_len = (arrow_x * arrow_x + arrow_y * arrow_y).sqrt();
+                if a_len > 0.001 {
+                    aim_x = arrow_x / a_len;
+                    aim_y = arrow_y / a_len;
+                } else {
+                    aim_x = self.rot.cos();
+                    aim_y = self.rot.sin();
+                }
                 want_to_fire = true;
             }
         }
@@ -196,8 +208,8 @@ impl Player {
             self.dx += norm_x * 1.4;
             self.dy += norm_y * 1.4;
 
-            // Update rotation towards movement if not aiming separately
-            if !want_to_fire {
+            // Update rotation towards movement if not aiming separately with twin-stick/mouse
+            if !want_to_fire || is_key_down(KeyCode::Space) {
                 self.rot = norm_y.atan2(norm_x);
             }
         }
@@ -313,29 +325,37 @@ impl Player {
                 self.y - tex.height() * 0.5,
                 COL_PLAYER,
                 DrawTextureParams {
-                    rotation: self.rot + std::f32::consts::FRAC_PI_2,
+                    rotation: self.rot - std::f32::consts::FRAC_PI_2,
                     ..Default::default()
                 },
             );
         } else {
-            // Authentic geometric player vector ship
+            // Authentic geometric player vector ship (twin-pronged fighter)
             let cos_r = self.rot.cos();
             let sin_r = self.rot.sin();
-            let nose = Vec2::new(self.x + cos_r * 16.0, self.y + sin_r * 16.0);
-            let wing_l = Vec2::new(
-                self.x - cos_r * 12.0 - sin_r * 10.0,
-                self.y - sin_r * 12.0 + cos_r * 10.0,
+            let prong_l = Vec2::new(
+                self.x + cos_r * 16.0 - sin_r * 8.0,
+                self.y + sin_r * 16.0 + cos_r * 8.0,
             );
-            let wing_r = Vec2::new(
-                self.x - cos_r * 12.0 + sin_r * 10.0,
-                self.y - sin_r * 12.0 - cos_r * 10.0,
+            let prong_r = Vec2::new(
+                self.x + cos_r * 16.0 + sin_r * 8.0,
+                self.y + sin_r * 16.0 - cos_r * 8.0,
             );
-            let center_in = Vec2::new(self.x - cos_r * 6.0, self.y - sin_r * 6.0);
+            let center_notch = Vec2::new(self.x + cos_r * 4.0, self.y + sin_r * 4.0);
+            let back_l = Vec2::new(
+                self.x - cos_r * 12.0 - sin_r * 8.0,
+                self.y - sin_r * 12.0 + cos_r * 8.0,
+            );
+            let back_r = Vec2::new(
+                self.x - cos_r * 12.0 + sin_r * 8.0,
+                self.y - sin_r * 12.0 - cos_r * 8.0,
+            );
 
-            draw_line(nose.x, nose.y, wing_l.x, wing_l.y, 2.0, COL_PLAYER);
-            draw_line(wing_l.x, wing_l.y, center_in.x, center_in.y, 2.0, COL_PLAYER);
-            draw_line(center_in.x, center_in.y, wing_r.x, wing_r.y, 2.0, COL_PLAYER);
-            draw_line(wing_r.x, wing_r.y, nose.x, nose.y, 2.0, COL_PLAYER);
+            draw_line(prong_l.x, prong_l.y, center_notch.x, center_notch.y, 2.0, COL_PLAYER);
+            draw_line(center_notch.x, center_notch.y, prong_r.x, prong_r.y, 2.0, COL_PLAYER);
+            draw_line(prong_l.x, prong_l.y, back_l.x, back_l.y, 2.0, COL_PLAYER);
+            draw_line(prong_r.x, prong_r.y, back_r.x, back_r.y, 2.0, COL_PLAYER);
+            draw_line(back_l.x, back_l.y, back_r.x, back_r.y, 2.0, COL_PLAYER);
         }
     }
 }
