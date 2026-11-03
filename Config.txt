@@ -1,5 +1,5 @@
 [Windowed]
-False
+True
 [Control Type]
 Dual Analog
 [Hybrid Config]
