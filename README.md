@@ -1,37 +1,58 @@
-# GridWars
+# GridWars (Pure Rust Edition)
 
-This repository holds the source code of GridWars, created originally by Mark Incitti in 2006. The goal of this project is to improve compatibility with embedded systems, such as the Respberry Pi.
+A 100% pure **Rust** port of the classic arcade twin-stick shooter *GridWars*, originally created by Mark Incitti in 2006.
 
+This port completely replaces the legacy BlitzMax codebase with a modern, high-performance, cross-platform Rust architecture powered by [Macroquad](https://macroquad.rs).
 
-## Build intructions
+## Features
 
-This game uses the [BlitzMax game engine](http://www.blitzbasic.com/Products/blitzmax.php), and is written in its BASIC-resembling language. As such, to compile the game, you will need the BMX compiler for your system. There are two main implementations, the [official one](https://github.com/blitz-research/blitzmax) and [BMX-NG](http://www.bmx-ng.com/main/), which has improved ARM and cross compilation support.
+- **Pure Rust Architecture:** Zero BlitzMax or GCC legacy C runtime dependencies.
+- **Interactive 2D Elastic Grid:** Real-time spring physics simulation with Laplacian 4-neighbor relaxation, wave propagation, bomb shockwaves, and gravitational distortions.
+- **Authentic Vector Font:** High-precision procedural line-segment typography faithful to the original 1980s vector arcade aesthetic.
+- **Dynamic Particle Engine & Starfield:** High-speed particle explosions, exhaust trails, bullet sparks, and twinkling parallax starfield.
+- **Full Enemy Ecosystem:**
+  - **Pinwheel:** Spinning kinetic hazards that bounce across grid boundaries.
+  - **Seeker Diamond:** Aggressive tracking enemies that home in on the player.
+  - **Wanderer Square:** Linear diagonal bouncers.
+  - **Black Hole / Sun:** Gravitational singularities that warp the grid, suck in nearby projectiles and fighters, and detonate upon destruction.
+  - **Clone / Grunt:** Marching swarm units.
+  - **Slithering Snake:** Segmented multi-node serpents.
+  - **Shielded Triangle:** Front-armored hostiles vulnerable only from flanking angles.
+  - **Butterfly / Weaver:** High-speed evasive weavers that dodge incoming fire.
+  - **Splitter Cube:** Fractures into smaller cubes when destroyed.
+  - **Generator:** Defensive spawners that periodically deploy enemy waves.
+- **Weapon System & Powerups:**
+  - Forward cannon, 3-Way spread shot, Side cannons, Rear shot, Super penetrating laser, and Bouncing munitions.
+  - Screen-clearing Smart Bombs.
+  - Energy Shields and Extra Lives.
+- **High Scores & Attract Loop:**
+  - Authentic multi-screen attract loop: Title Screen, Top 10 High Scores, Friends & Powerups overview, and Hostiles showcase.
+  - In-game Options Menu (Esc / Tab) supporting multiple control schemes.
 
-The last known working compiler version is `0.138.3.53`.
+---
 
+## Controls
 
-### Building on Linux/Raspberry Pi
+| Action | Primary Controls | Twin-Stick Mode | Mouse Mode |
+|---|---|---|---|
+| **Move Ship** | <kbd>Arrow Keys</kbd> or <kbd>WASD</kbd> | <kbd>WASD</kbd> | <kbd>WASD</kbd> / Cursor |
+| **Shoot** | <kbd>Space</kbd> | <kbd>Arrow Keys</kbd> (360°) | <kbd>Left Click</kbd> |
+| **Smart Bomb** | <kbd>B</kbd> / <kbd>Shift</kbd> | <kbd>B</kbd> / <kbd>Shift</kbd> | <kbd>Right Click</kbd> |
+| **Options / Pause** | <kbd>ESC</kbd> / <kbd>Tab</kbd> | <kbd>ESC</kbd> / <kbd>Tab</kbd> | <kbd>ESC</kbd> |
 
-- Install the dependencies of the BMX-NG compiler: `sudo apt-get install libasound2-dev libpulse-dev libxft-dev libxxf86vm-dev`
-- Get the BMX-NG compiler from here: https://github.com/bmx-ng/bmx-ng/releases
-- Extract it to somewhere
-- `cd` into the cloned game repository
-- Build the game like this: `PATH=/path/to/BlitzMax/bin:$PATH bmk makeapp -t gui -r -w gridwars.bmx`
+---
 
-The `gridwars` executable will be created in the project's directory.
+## Building and Running
 
+Ensure you have Rust and Cargo installed:
 
-### Cross compiling to Raspberry Pi
+```bash
+cargo run --release
+```
 
-At the time of writing the build system, unfortunately, doesn't respect `CC` and `CXX`, and always calls the native compiler. You'll have to do some manual hacking.
+To build a standalone optimized binary:
 
-- Make sure you have a C++ cross compiler installed (eg. `arm-linux-gnueabihf-g++`)
-- Copy the OpenGL/GLES libraries from the Raspberry Pi to your system. You have to copy `/opt/vc/` from the Pi (or from a Pi disk image) to the same place on your native system. If this path is not good for you, you can change it in `BlitzMax/mod/sdl.mod/sdlgraphics.mod/sdlgraphics.bmx`
-- Create a new directory that will hold symlinks to the cross compilers, eg. `armcc`, and enter into it
-- `for f in /usr/bin/arm-linux-gnueabihf-*; do f2=$(basename $f); ln -s $f ./${f2/arm-linux-gnueabihf-/}; done`
-- Install the dependencies of the BMX-NG compiler: `sudo apt-get install libasound2-dev libpulse-dev libxft-dev libxxf86vm-dev`
-- Get the BMX-NG compiler for Linux from here: https://github.com/bmx-ng/bmx-ng/releases
-- Extract it to somewhere
-- `cd` into the cloned game repository
-- Build the game like this: `PATH=/path/to/armcc:/path/to/BlitzMax/bin:$PATH bmk makeapp -t gui -l raspberrypi -g arm -r -w -v gridwars.bmx`
-- At the very end, you will get a compile error about an unexpected `-m32` flag, or undefined EGL symbols. To fix it, copy the failing `g++` command, replace `g++` with `arm-linux-gnueabihf-g++`, remove `-m32` and also append `-lEGL` to the end
+```bash
+cargo build --release
+```
+The compiled executable will be located at `target/release/gridwars`.

@@ -1,6 +1,3 @@
-# build directory
-.bmx/
-
-# binaries
-gridwars*
-!gridwars.bmx
+/target
+**/*.rs.bk
+Cargo.lock
